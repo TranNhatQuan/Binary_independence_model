@@ -1,1 +1,1 @@
-#Binary Independence Model
+Binary Independence Model
