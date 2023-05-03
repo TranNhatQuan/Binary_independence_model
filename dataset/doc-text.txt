@@ -73516,7 +73516,7 @@ solar batteries for the use as the power source of unattended uhf
 repeaters
    /
 11429
-pattern detection and recognition  both processes have been carried
+pattern detection and recognition  both process have been carried
 out on an ibm computer which was programmed to simulate a spatial
 computer  the programs tested included the recognition process for
 reading handlettered sansserif alphanumeric characters

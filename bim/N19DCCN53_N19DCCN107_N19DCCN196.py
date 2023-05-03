@@ -52,19 +52,22 @@ def docs_processing(docs):
     '''
     docs_after_process = []
     # removing digit and break line ('\n)
-    st1_pr_docs = list(filter(lambda y: not y.isdigit(),
+    pre_docs = list(filter(lambda y: not y.isdigit(),
                               map(lambda x: x[:-1], docs)))
+    # print(pre_docs)
     # splitting allow forward flash
     table_remove_punctuation = str.maketrans(
         dict.fromkeys(string.punctuation))
+    # print(table_remove_punctuation)
     docs_tmp = []
-    for doc in st1_pr_docs:
+    for doc in pre_docs:
         if doc.endswith('/'):
-            docs_after_process.append(' '.join(docs_tmp))
+            docs_after_process.append(''.join(docs_tmp))
             docs_tmp.clear()
         else:
             docs_tmp.append(
-                ' '.join([w.lower().translate(table_remove_punctuation) for w in doc.split()]))
+                ' '.join([w.translate(table_remove_punctuation) for w in doc.split()]))
+    # print(docs_after_process)
     docs_after_process = [w.split() for w in docs_after_process]
     return docs_after_process
 
@@ -90,27 +93,11 @@ def posting_lists_union(pl1, pl2):
         Returns a new posting list resulting from the union of the
         two lists passed as arguments.
         """
-    pl1 = sorted(list(pl1))
-    pl2 = sorted(list(pl2))
-    union = []
-    i = 0
-    j = 0
-    while (i < len(pl1) and j < len(pl2)):
-        if (pl1[i] == pl2[j]):
-            union.append(pl1[i])
-            i += 1
-            j += 1
-        elif (pl1[i] < pl2[j]):
-            union.append(pl1[i])
-            i += 1
-        else:
-            union.append(pl2[j])
-            j += 1
-    for k in range(i, len(pl1)):
-        union.append(pl1[k])
-    for k in range(j, len(pl2)):
-        union.append(pl2[k])
-    return union
+    
+   
+
+    # print(union)
+    return list(set(pl1).union(set(pl2)))
 
 
 # ## Precomputing weights
@@ -286,8 +273,9 @@ class BIM():
 
 
 articles = docs_processing(import_dataset())
+# print(articles)
 bim = BIM(articles)
-query = 'electric'
+query = 'MATHEMATICAL ANALYSIS AND DESIGN DETAILS OF WAVEGUIDE FED MICROWAVE RADIATIONS'
 bim.answer_query(query)
 bim.show_more()
 # # bim.read_document(2)
