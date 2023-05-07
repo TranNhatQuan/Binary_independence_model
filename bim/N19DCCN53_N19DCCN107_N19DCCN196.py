@@ -69,6 +69,7 @@ def docs_processing(docs):
                 ' '.join([w.translate(table_remove_punctuation) for w in doc.split()]))
     # print(docs_after_process)
     docs_after_process = [w.split() for w in docs_after_process]
+    
     return docs_after_process
 
 
@@ -79,10 +80,12 @@ def make_inverted_index(corpus):
     docIDs containing the term.
     """
     corpus = remove_stop_words(corpus)
+    
     index = defaultdict(set)
     for docid, article in enumerate(corpus):
         for term in article:
             index[term].add(docid + 1)
+    # print(index['equal'])
     return index
 
 # ### Union of two posting lists
@@ -144,7 +147,7 @@ class BIM():
         self.weights = RSV_weights(self.articles, self.index)
         self.ranked = []
         self.query_text = ''
-        self.N_retrieved = 0
+        
 
     def RSV_doc_query(self, doc_id, query):
         '''
@@ -153,9 +156,11 @@ class BIM():
         '''
         score = 0
         doc = self.articles[doc_id]
+        
         for term in doc:
             if term in query:
                 score += self.weights[term]
+        
         return score
 
     def ranking(self, query):
@@ -167,6 +172,7 @@ class BIM():
         docs = []
         for term in self.index:
             if term in query:
+                
                 docs = posting_lists_union(docs, self.index[term])
 
         scores = []
@@ -202,16 +208,16 @@ class BIM():
                 u = (DF(term, self.index) - vri + 0.5) / (N - N_rel + 1)
                 self.weights[term] = log((1-u)/u) + log(p/(1-p))
 
-    def answer_query(self, query_text):
+    def answer_query(self, query_text, n_retrived):
         '''
         Function to answer a free text query. Shows the first 30 words of the
-        15 most relevant documents. 
+        n_retrived most relevant documents. 
         Also implements the pseudo relevance feedback with k = 5
         '''
 
         self.query_text = query_text
         query = remove_stop_word(query_text.lower().split(' '))
-        # query = remove_stop_words(query)
+        
         ranking = self.ranking(query)
 
         # pseudo relevance feedback
@@ -224,58 +230,22 @@ class BIM():
 
         ranking = new_ranking
 
-        self.N_retrieved = 15
-
-        # print retrieved documents
-
-        for i in range(0, self.N_retrieved):
+        for i in range(0, n_retrived):
             article = self.original_corpus[ranking[i][0]]
-            if (len(article) > 30):
-                article = article[0:30]
             text = " ".join(article)
             print(f"Article {i + 1}, score: {ranking[i][1]}")
             print(text, '\n')
 
         self.weights = RSV_weights(self.articles, self.index)
 
-    def read_document(self, rank_num):
-        '''
-        Function that allows the user to select a document among the ones returned 
-        by answer_query and read the whole text
-        '''
-        if (self.query_text == ''):
-            print('Cannot select a document before a query is formulated.')
-            return
+   
 
-        article = self.original_corpus[self.ranked[rank_num - 1][0]]
-        text = " ".join(article)
-        print(f"Article {rank_num}, score: {self.ranked[rank_num][1]}")
-        print(text, '\n')
-
-    def show_more(self):
-        '''
-        Function that allows the user to see more 10 retrieved documents
-        '''
-
-        if (self.N_retrieved + 10 > len(self.ranked)):
-            print('No more documents available')
-            return
-
-        for i in range(self.N_retrieved, self.N_retrieved+10):
-            article = self.original_corpus[self.ranked[i][0]]
-            if (len(article) > 30):
-                article = article[0:30]
-            text = " ".join(article)
-            print(f"Article {i + 1}, score: {self.ranked[i][1]}")
-            print(text, '\n')
-
-        self.N_retrieved += 10
+    
 
 
 articles = docs_processing(import_dataset())
 # print(articles)
 bim = BIM(articles)
 query = 'MATHEMATICAL ANALYSIS AND DESIGN DETAILS OF WAVEGUIDE FED MICROWAVE RADIATIONS'
-bim.answer_query(query)
-bim.show_more()
-# # bim.read_document(2)
+bim.answer_query(query,10)
+
