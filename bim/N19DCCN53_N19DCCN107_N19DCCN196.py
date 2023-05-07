@@ -62,7 +62,7 @@ def docs_processing(docs):
     docs_tmp = []
     for doc in pre_docs:
         if doc.endswith('/'):
-            docs_after_process.append(''.join(docs_tmp))
+            docs_after_process.append(' '.join(docs_tmp))
             docs_tmp.clear()
         else:
             docs_tmp.append(
@@ -84,7 +84,7 @@ def make_inverted_index(corpus):
     index = defaultdict(set)
     for docid, article in enumerate(corpus):
         for term in article:
-            index[term].add(docid + 1)
+            index[term].add(docid)
     # print(index['equal'])
     return index
 
@@ -174,7 +174,7 @@ class BIM():
             if term in query:
                 
                 docs = posting_lists_union(docs, self.index[term])
-
+        # print(docs)
         scores = []
         for doc in docs:
             scores.append((doc, self.RSV_doc_query(doc, query)))
@@ -206,7 +206,7 @@ class BIM():
                         vri += 1
                 p = (vri + 0.5) / (N_rel + 1)
                 u = (DF(term, self.index) - vri + 0.5) / (N - N_rel + 1)
-                self.weights[term] = log((1-u)/u) + log(p/(1-p))
+                self.weights[term] = log((1-u)/u) + log(p/(1-p))        
 
     def answer_query(self, query_text, n_retrived):
         '''
@@ -219,7 +219,7 @@ class BIM():
         query = remove_stop_word(query_text.lower().split(' '))
         
         ranking = self.ranking(query)
-
+        
         # pseudo relevance feedback
         i = 0
         new_ranking = []
@@ -244,8 +244,9 @@ class BIM():
 
 
 articles = docs_processing(import_dataset())
-# print(articles)
+
+# print(articles[0])
 bim = BIM(articles)
-query = 'MATHEMATICAL ANALYSIS AND DESIGN DETAILS OF WAVEGUIDE FED MICROWAVE RADIATIONS'
-bim.answer_query(query,10)
+query = 'USE OF PROGRAMS IN ENGINEERING TESTING OF COMPUTERS'
+bim.answer_query(query,2)
 
